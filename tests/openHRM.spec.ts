@@ -37,4 +37,30 @@ test.describe('Open HRM Login page', () => {
         await page.getByRole('button').filter({ hasText: 'Login' }).click();
         await expect(page.locator("//input[contains(@class,'oxd-input--error')]")).toHaveCount(2)
     })
+    test('should display validation error message for required username', async ({ page }) => {
+        const usernameField = page.locator("//input[@name='username']")
+        const passwordField = page.locator("//input[@name='password']")
+        await usernameField.fill("")
+        await passwordField.fill(testData.validUser.password)
+        await page.getByRole('button').filter({ hasText: 'Login' }).click();
+        await expect(page.locator("//input[contains(@class,'oxd-input--error')]")).toHaveCount(1)
+    })
+    test('should display validation error message for required password', async ({ page }) => {
+        const usernameField = page.locator("//input[@name='username']")
+        const passwordField = page.locator("//input[@name='password']")
+        await usernameField.fill(testData.validUser.username)
+        await passwordField.fill("")
+        await page.getByRole('button').filter({ hasText: 'Login' }).click();
+        await expect(page.locator("//input[contains(@class,'oxd-input--error')]")).toHaveCount(1)
+    })
+
+    test('should display form to verify user to change password', async ({ page }) => {
+        const forgotPassword = page.locator('//p[contains(@class,"orangehrm-login-forgot-header")]')
+        await forgotPassword.click()
+        //after click
+        await expect(page.locator("//h6[text()='Reset Password']")).toBeVisible()
+        await expect(page.locator("//input[@name='username']")).toBeVisible()
+        await expect(page.locator("//button[contains(@class,'orangehrm-forgot-password-button--reset')]")).toBeVisible()
+
+    })
 })
