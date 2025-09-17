@@ -33,6 +33,14 @@ test.describe("check box testing", () => {
         await expect(page.locator("//span[text()='Excel File.doc']")).not.toBeVisible()
         await page.locator("//button[@title='Expand all']").click()
         await expect(page.locator("//span[text()='Excel File.doc']")).toBeVisible()
+        await page.locator("//button[@title='Collapse all']").click()
         await expect(page.locator("//span[text()='Excel File.doc']")).not.toBeVisible()
+    })
+    test('should check all items when root checkbox is checked', async ({ page }) => {
+        const rootLabel = page.locator("//label[@for='tree-node-home']")
+        await rootLabel.click()
+        const homeCheckbox = page.locator('#tree-node-home')
+        await expect(homeCheckbox).toBeChecked()
+        ////span[contains(text(), 'Home')]/preceding-sibling::span[@class='rct-checkbox']
     })
 })
