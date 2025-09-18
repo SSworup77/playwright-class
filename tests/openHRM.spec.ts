@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { testData } from '../utils/test-data';
 
 
-test.describe('Open HRM Login page', () => {
+test.describe('Orange HRM Login page', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto("web/index.php/auth/login")
     });
@@ -62,5 +62,44 @@ test.describe('Open HRM Login page', () => {
         await expect(page.locator("//input[@name='username']")).toBeVisible()
         await expect(page.locator("//button[contains(@class,'orangehrm-forgot-password-button--reset')]")).toBeVisible()
 
+    })
+})
+
+test.describe('Adding new Employee', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto("web/index.php/auth/login")
+        const usernameField = page.locator("//input[@name='username']")
+        const passwordField = page.locator("//input[@name='password']")
+        await usernameField.fill(testData.validUser.username)
+        await passwordField.fill(testData.validUser.password)
+        await page.getByRole('button').filter({ hasText: 'Login' }).click();
+    })
+    test('Adding new employee', async ({ page }) => {
+        const pimOption = page.locator("//a[contains(@href,'viewPimModule')]")
+        await pimOption.click()
+        await expect(page.locator("//h6[text()='PIM']")).toBeVisible()
+        const addEmployee = page.locator("//li/a[text()='Add Employee']")
+        await addEmployee.click()
+        await expect(page.locator('//h6[text()="Add Employee"]')).toBeVisible()
+        const firstName = page.locator("//input[@name='firstName']")
+        const middleName = page.locator("//input[@name='middleName']")
+        const lastName = page.locator("//input[@name='lastName']")
+        const employeeId = page.locator("//label[text()='Employee Id']/following::input[1]")
+        await firstName.fill("First")
+        await middleName.fill("Middle")
+        await lastName.fill("Last")
+        await employeeId.fill("")
+        await employeeId.fill("6977")
+        const loginToggle = page.locator("//span[contains(@class,'oxd-switch-input')]")
+        await loginToggle.click()
+        const usernameField = page.locator("//div[contains(@class,'oxd-form-row')][3]//input[contains(@class,'oxd-input')]")
+        const passwordField = page.locator("//div[contains(@class,'user-password-row')]//input[contains(@class,'oxd-input--active')]")
+        const saveBtn = page.locator("//button[@type='submit']")
+        await usernameField.fill("FirstLast65")
+        await passwordField.first().fill("firstlast@123")
+        await passwordField.last().fill("firstlast@123")
+        await saveBtn.click()
+        // await expect(page.locator("//label[text()='Username']")).toBeVisible()
+        await expect(page.locator("//div[contains(@class,'oxd-toast-content')]//p[text()='Successfully Saved']")).toBeVisible()
     })
 })
