@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { testData } from '../utils/test-data';
+import { LoginPage } from '../pages/login.po';
 
 
 test.describe('Orange HRM Login page', () => {
@@ -11,11 +12,9 @@ test.describe('Orange HRM Login page', () => {
         await expect(page.locator("button[type='submit']")).toBeVisible()
     })
     test('should successfully log in user with valid credentials', async ({ page }) => {
-        const usernameField = page.locator("//input[@name='username']")
-        const passwordField = page.locator("//input[@name='password']")
-        await usernameField.fill(testData.validUser.username)
-        await passwordField.fill(testData.validUser.password)
-        await page.getByRole('button').filter({ hasText: 'Login' }).click();
+        const loginPage = new LoginPage(page)
+        await loginPage.userLogin(testData.validUser.username, testData.validUser.password)
+        await loginPage.clickLoginBtn()
         //after login
         await expect(page.locator("//h6[text()='Dashboard']")).toBeVisible()
         await expect(page.locator("//a[contains(@href,'viewAdminModule')]")).toBeVisible()
@@ -85,6 +84,11 @@ test.describe('Adding new Employee', () => {
         const middleName = page.locator("//input[@name='middleName']")
         const lastName = page.locator("//input[@name='lastName']")
         const employeeId = page.locator("//label[text()='Employee Id']/following::input[1]")
+        const fileChooser = page.waitForEvent('filechooser');
+        const imageLoc = page.locator("//div[@class='employee-image-wrapper']")
+        await imageLoc.click()
+        const fileChoose = await fileChooser
+        await fileChoose.setFiles("I:\\testingPresent\\tests\\profile.jpg")
         await firstName.fill("First")
         await middleName.fill("Middle")
         await lastName.fill("Last")
@@ -101,5 +105,18 @@ test.describe('Adding new Employee', () => {
         await saveBtn.click()
         // await expect(page.locator("//label[text()='Username']")).toBeVisible()
         await expect(page.locator("//div[contains(@class,'oxd-toast-content')]//p[text()='Successfully Saved']")).toBeVisible()
+    })
+    test('Searching newly added employee', async ({ page }) => {
+        const employeeList = page.locator("//li/a[text()='Employee List']")
+        const empIDsearchfield = page.locator("//label[text()='Employee Id']/following::input[1]")
+        const searchBtn = page.locator("//button[@type='submit']")
+        const employeeId = "6977"
+        const searchResult = page.locator(`//div[@class='oxd-table-card']//div[text()='${employeeId}']`)
+        const pimOption = page.locator("//a[contains(@href,'viewPimModule')]")
+        await pimOption.click()
+        await employeeList.click()
+        await empIDsearchfield.fill(employeeId)
+        await searchBtn.click()
+        await expect(searchResult).toHaveCount(1)
     })
 })
