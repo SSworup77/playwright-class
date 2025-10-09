@@ -4,52 +4,37 @@ import { LoginPage } from '../pages/login.po';
 
 
 test.describe('Orange HRM Login page', () => {
+    let loginPage: LoginPage
     test.beforeEach(async ({ page }) => {
-        await page.goto("web/index.php/auth/login")
+        loginPage = new LoginPage(page)
+        await loginPage.open()
     });
     test('The login page loads', async ({ page }) => {
-        await expect(page.locator("//h5[text()='Login']")).toBeVisible()
-        await expect(page.locator("button[type='submit']")).toBeVisible()
+        await expect(loginPage.username).toBeVisible()
+        await expect(loginPage.password).toBeVisible()
+        await expect(loginPage.loginBtn).toBeVisible()
     })
     test('should successfully log in user with valid credentials', async ({ page }) => {
-        const loginPage = new LoginPage(page)
         await loginPage.userLogin(testData.validUser.username, testData.validUser.password)
-        await loginPage.clickLoginBtn()
         //after login
-        await expect(page.locator("//h6[text()='Dashboard']")).toBeVisible()
-        await expect(page.locator("//a[contains(@href,'viewAdminModule')]")).toBeVisible()
+        await loginPage.assertLoginSuccess()
+
     })
     test('should not allow login with invalid credentials', async ({ page }) => {
-        const usernameField = page.locator("//input[@name='username']")
-        const passwordField = page.locator("//input[@name='password']")
-        await usernameField.fill(testData.invalidUser.username)
-        await passwordField.fill(testData.invalidUser.password)
-        await page.getByRole('button').filter({ hasText: 'Login' }).click();
+        await loginPage.userLogin(testData.invalidUser.username, testData.invalidUser.password);
         //after login
-        await expect(page.locator("//p[text()='Invalid credentials']")).toBeVisible()
+        await expect(loginPage.errorMessage).toBeVisible();
     })
     test('should display validation error message for required credentials', async ({ page }) => {
-        const usernameField = page.locator("//input[@name='username']")
-        const passwordField = page.locator("//input[@name='password']")
-        await usernameField.fill("")
-        await passwordField.fill("")
-        await page.getByRole('button').filter({ hasText: 'Login' }).click();
+        await loginPage.userLogin("", "");
         await expect(page.locator("//input[contains(@class,'oxd-input--error')]")).toHaveCount(2)
     })
     test('should display validation error message for required username', async ({ page }) => {
-        const usernameField = page.locator("//input[@name='username']")
-        const passwordField = page.locator("//input[@name='password']")
-        await usernameField.fill("")
-        await passwordField.fill(testData.validUser.password)
-        await page.getByRole('button').filter({ hasText: 'Login' }).click();
+        await loginPage.userLogin("", testData.validUser.password);
         await expect(page.locator("//input[contains(@class,'oxd-input--error')]")).toHaveCount(1)
     })
     test('should display validation error message for required password', async ({ page }) => {
-        const usernameField = page.locator("//input[@name='username']")
-        const passwordField = page.locator("//input[@name='password']")
-        await usernameField.fill(testData.validUser.username)
-        await passwordField.fill("")
-        await page.getByRole('button').filter({ hasText: 'Login' }).click();
+        await loginPage.userLogin(testData.validUser.username, "");
         await expect(page.locator("//input[contains(@class,'oxd-input--error')]")).toHaveCount(1)
     })
 
