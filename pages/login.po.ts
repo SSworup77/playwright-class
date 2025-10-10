@@ -16,7 +16,7 @@ class LoginPage {
         this.forgotPassword = page.locator('//p[contains(@class,"orangehrm-login-forgot-header")]')
     }
     async open() {
-        await this.page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login")
+        await this.page.goto("/web/index.php/auth/login")
     }
     async userLogin(username: string, password: string) {
         await this.username.fill(username)

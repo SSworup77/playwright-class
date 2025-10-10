@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { testData } from '../utils/test-data';
 import { LoginPage } from '../pages/login.po';
+import { PIMOption } from '../pages/pim.page';
+import { AddEmployees } from '../pages/addEmployee.page';
 
 
 test.describe('Orange HRM Login page', () => {
@@ -50,20 +52,20 @@ test.describe('Orange HRM Login page', () => {
 })
 
 test.describe('Adding new Employee', () => {
+    let loginPage: LoginPage
+    let pimOption: PIMOption
+    let addEmployee: AddEmployees
     test.beforeEach(async ({ page }) => {
-        await page.goto("web/index.php/auth/login")
-        const usernameField = page.locator("//input[@name='username']")
-        const passwordField = page.locator("//input[@name='password']")
-        await usernameField.fill(testData.validUser.username)
-        await passwordField.fill(testData.validUser.password)
-        await page.getByRole('button').filter({ hasText: 'Login' }).click();
+        loginPage = new LoginPage(page)
+        await loginPage.open()
+        await loginPage.userLogin(testData.validUser.username, testData.validUser.password)
     })
     test('Adding new employee', async ({ page }) => {
-        const pimOption = page.locator("//a[contains(@href,'viewPimModule')]")
-        await pimOption.click()
-        await expect(page.locator("//h6[text()='PIM']")).toBeVisible()
-        const addEmployee = page.locator("//li/a[text()='Add Employee']")
-        await addEmployee.click()
+        pimOption = new PIMOption(page)
+        await pimOption.pimOption.click()
+        await expect(pimOption.pimHeader).toBeVisible()
+        addEmployee = new AddEmployees(page)
+        await addEmployee.addEmployeeBtn.click()
         await expect(page.locator('//h6[text()="Add Employee"]')).toBeVisible()
         const firstName = page.locator("//input[@name='firstName']")
         const middleName = page.locator("//input[@name='middleName']")
