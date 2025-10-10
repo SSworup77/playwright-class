@@ -66,21 +66,14 @@ test.describe('Adding new Employee', () => {
         await expect(pimOption.pimHeader).toBeVisible()
         addEmployee = new AddEmployees(page)
         await addEmployee.addEmployeeBtn.click()
-        await expect(page.locator('//h6[text()="Add Employee"]')).toBeVisible()
-        const firstName = page.locator("//input[@name='firstName']")
-        const middleName = page.locator("//input[@name='middleName']")
-        const lastName = page.locator("//input[@name='lastName']")
-        const employeeId = page.locator("//label[text()='Employee Id']/following::input[1]")
-        const fileChooser = page.waitForEvent('filechooser');
-        const imageLoc = page.locator("//div[@class='employee-image-wrapper']")
-        await imageLoc.click()
-        const fileChoose = await fileChooser
-        await fileChoose.setFiles("I:\\testingPresent\\tests\\profile.jpg")
-        await firstName.fill("First")
-        await middleName.fill("Middle")
-        await lastName.fill("Last")
-        await employeeId.fill("")
-        await employeeId.fill("6977")
+        await expect(addEmployee.addEmployeeHeader).toBeVisible()
+        await addEmployee.fillEmployeeDetails(
+            "First",
+            "Middle",
+            "Last",
+            "6977"
+        );
+        await addEmployee.uploadProfileImage("I:\\testingPresent\\tests\\profile.jpg");
         const loginToggle = page.locator("//span[contains(@class,'oxd-switch-input')]")
         await loginToggle.click()
         const usernameField = page.locator("//div[contains(@class,'oxd-form-row')][3]//input[contains(@class,'oxd-input')]")
